@@ -1,0 +1,39 @@
+# Environments
+venv/
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+mysword_tools.egg-info/
+
+# Node/Next.js
+node_modules/
+.next/
+out/
+src/web/frontend/node_modules/
+src/web/frontend/.next/
+src/web/frontend/out/
+
+# Output files / DBs
+output/
+*.jor.mybible
+*.db
+*.sqlite
+comparison_result.txt
+comparison_v3.txt
+Status.txt
+
+# OS/System/IDE/CLI
+.DS_Store
+.idea/
+.vscode/
+.ps_history
+.ps_project_history.txt

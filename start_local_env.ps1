@@ -62,22 +62,44 @@ $env:STRIPE_WEBHOOK_SECRET = 'whsec_test_webhook_secret_fake'
 $env:NEXT_PUBLIC_API_URL = ('http://localhost:' + $backendPort)
 
 
-# 3. Iniciar o Backend (FastAPI) em uma nova janela do console
+# 3. Iniciar o Backend (FastAPI) em segundo plano (na mesma janela)
 Write-Host ('[1/3] Iniciando o Backend FastAPI na porta ' + $backendPort + '...') -ForegroundColor Yellow
-$backendCmd = 'cd c:\projects\mysword-tools; .\venv\Scripts\python.exe -m uvicorn src.web.app:app --reload --port ' + $backendPort
-Start-Process powershell -ArgumentList '-NoExit', '-Command', $backendCmd -WindowStyle Normal
+$backendProc = Start-Process -FilePath "$PSScriptRoot\venv\Scripts\python.exe" -ArgumentList "-m uvicorn src.web.app:app --reload --port $backendPort" -WorkingDirectory "$PSScriptRoot" -NoNewWindow -PassThru
 
 # 4. Instalar dependências do Frontend (Next.js)
 Write-Host '[2/3] Verificando dependências do Frontend Next.js...' -ForegroundColor Yellow
-cd c:\projects\mysword-tools\src\web\frontend
+cd "$PSScriptRoot\src\web\frontend"
 npm install
 
-# 5. Iniciar o Frontend (Next.js) em uma nova janela do console passando a porta dinâmica e a URL da API
+# 5. Iniciar o Frontend (Next.js) em segundo plano (na mesma janela)
 Write-Host ('[3/3] Iniciando o Frontend Next.js na porta ' + $frontendPort + '...') -ForegroundColor Yellow
-$frontendCmd = 'cd c:\projects\mysword-tools\src\web\frontend; $env:NEXT_PUBLIC_API_URL=''http://localhost:' + $backendPort + '''; npx next dev -p ' + $frontendPort
-Start-Process powershell -ArgumentList '-NoExit', '-Command', $frontendCmd -WindowStyle Normal
+$frontendProc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c npx next dev -p $frontendPort" -WorkingDirectory "$PSScriptRoot\src\web\frontend" -NoNewWindow -PassThru
 
-Write-Host 'Ambos os servidores foram iniciados em novas janelas do console!' -ForegroundColor Green
+Write-Host '==================================================' -ForegroundColor Cyan
+Write-Host 'Ambos os servidores foram iniciados na mesma janela!' -ForegroundColor Green
 Write-Host ('  - Backend API: http://localhost:' + $backendPort) -ForegroundColor Gray
 Write-Host ('  - Frontend Web: http://localhost:' + $frontendPort) -ForegroundColor Gray
+Write-Host 'Pressione Ctrl+C para encerrar os servidores.' -ForegroundColor Cyan
 Write-Host '==================================================' -ForegroundColor Cyan
+
+try {
+    # Mantém o script rodando enquanto ambos os processos estiverem ativos
+    while ($backendProc.HasExited -eq $false -and $frontendProc.HasExited -eq $false) {
+        Start-Sleep -Seconds 1
+    }
+}
+finally {
+    Write-Host "`n[+] Encerrando servidores locais..." -ForegroundColor Yellow
+    
+    # Parar o processo do Backend e seus filhos
+    if ($backendProc -and -not $backendProc.HasExited) {
+        & taskkill /F /T /PID $backendProc.Id *>$null
+    }
+    
+    # Parar o processo do Frontend e seus filhos
+    if ($frontendProc -and -not $frontendProc.HasExited) {
+        & taskkill /F /T /PID $frontendProc.Id *>$null
+    }
+    
+    Write-Host "[+] Servidores encerrados com sucesso!" -ForegroundColor Green
+}

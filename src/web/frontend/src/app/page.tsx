@@ -260,19 +260,24 @@ export default function Home() {
 
           {/* Área de Arrastar/Escolher arquivo */}
           {!file && !analyzing && (
-            <div 
-              className={`dropzone ${dragActive ? 'active' : ''}`}
-              onDragEnter={handleDrag}
-              onDragOver={handleDrag}
-              onDragLeave={handleDrag}
-              onDrop={handleDrop}
-              onClick={triggerFileInput}
-            >
-              <div className="upload-icon">📂</div>
-              <p className="upload-text">{t.uploader.dragDrop}</p>
-              <button type="button" className="btn-primary" style={{ padding: '8px 18px', fontSize: '14px', marginTop: '12px' }}>
-                {t.uploader.browse}
-              </button>
+            <>
+              <div 
+                className={`dropzone ${dragActive ? 'active' : ''}`}
+                onDragEnter={handleDrag}
+                onDragOver={handleDrag}
+                onDragLeave={handleDrag}
+                onDrop={handleDrop}
+                onClick={triggerFileInput}
+              >
+                <div className="upload-icon">📂</div>
+                <p className="upload-text">{t.uploader.dragDrop}</p>
+                <button type="button" className="btn-primary" style={{ padding: '8px 18px', fontSize: '14px', marginTop: '12px' }}>
+                  {t.uploader.browse}
+                </button>
+                <p className="upload-subtext" style={{ marginTop: '12px' }}>
+                  .docx (Word Document)
+                </p>
+              </div>
               <input 
                 type="file" 
                 ref={fileInputRef}
@@ -280,10 +285,7 @@ export default function Home() {
                 accept=".docx"
                 onChange={handleFileChange}
               />
-              <p className="upload-subtext" style={{ marginTop: '12px' }}>
-                .docx (Word Document)
-              </p>
-            </div>
+            </>
           )}
 
           {/* Loader de Análise */}
